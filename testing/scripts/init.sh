@@ -71,6 +71,7 @@ _EOF_
         CURRENT_USER_ID=$(id -u)
         CURRENT_GROUP_ID=$(id -g)
         sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < ./dot.env.template > $ENVFILE
+        cat ../versions.env >> .env
         # Ask user for service hostname
         define_hostname
         check_user_certificates ${SYSTEM_HOSTNAME}

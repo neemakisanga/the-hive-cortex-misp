@@ -12,7 +12,8 @@ services:
       - thread_pool.search.queue_size=100000
       - thread_pool.write.queue_size=100000
       - bootstrap.memory_lock=true
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${elasticsearch_password} # Password for "elastic" default user
       - ES_JAVA_OPTS=-Xms6G -Xmx6G
     volumes:
       - ./elasticsearch/data:/usr/share/elasticsearch/data
@@ -30,7 +31,7 @@ services:
     networks:
       - cortex-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -f elasticsearch:9200/_cat/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f -s -u 'elastic:${elasticsearch_password}' http://elasticsearch:9200/_cat/health || exit 1"]
       start_period: 40s
       interval: 2s
       timeout: 1s
