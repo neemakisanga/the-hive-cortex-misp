@@ -18,7 +18,19 @@ SERVICE_HOSTNAME=${choice:-${SYSTEM_HOSTNAME}}
 
 
 init() {
+    ELASTICSEARCH_PASSWORD=$(cat /dev/urandom | LC_CTYPE=C tr -dc '[:alnum:]' | fold -w 64 | head -n 1)
+
     ## INIT THEHIVE CONFIGURATION
+    THEHIVEINDEXFILE="./thehive/config/index.conf"
+    THEHIVEINDEXFILETEMPLATE="./thehive/config/index.conf.template"
+    if [ ! -f ${THEHIVEINDEXFILE} ]
+    then
+        sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < $THEHIVEINDEXFILETEMPLATE > $THEHIVEINDEXFILE
+    else
+        STATUS=1
+        warning "${THEHIVEINDEXFILE} file already exists and has not been modified."
+    fi
+
     THEHIVESECRETFILE="./thehive/config/secret.conf"
     if [ ! -f ${THEHIVESECRETFILE} ]
     then
@@ -31,6 +43,16 @@ _EOF_
     fi
 
     ## INIT CORTEX CONFIGURATION
+    CORTEXINDEXFILE="./cortex/config/index.conf"
+    CORTEXINDEXFILETEMPLATE="./cortex/config/index.conf.template"
+    if [ ! -f ${CORTEXINDEXFILE} ]
+    then
+        sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < $CORTEXINDEXFILETEMPLATE > $CORTEXINDEXFILE
+    else
+        STATUS=1
+        warning "${CORTEXINDEXFILE} file already exists and has not been modified."
+    fi
+
     CORTEXSECRETFILE="./cortex/config/secret.conf"
     if [ ! -f ${CORTEXSECRETFILE} ]
     then
@@ -48,8 +70,9 @@ _EOF_
     then
         CURRENT_USER_ID=$(id -u)
         CURRENT_GROUP_ID=$(id -g)
-        cp dot.env.template .env
-        define_hostname # Ask user for service hostname
+        sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < ./dot.env.template > $ENVFILE
+        # Ask user for service hostname
+        define_hostname
         check_user_certificates ${SYSTEM_HOSTNAME}
         # bash $(dirname $0)/generate_certs.sh ${SYSTEM_HOSTNAME} # Generate Nginx self-signed certificates if no certificate is installed.
         cat >> ${ENVFILE} << _EOF_

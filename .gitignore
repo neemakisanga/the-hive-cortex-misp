@@ -15,9 +15,11 @@
 /*/thehive/logs/*
 
 # Ignore custom configuration files for TheHive
+/*/thehive/config/index.conf
 /*/thehive/config/secret.conf
 
 # Ignore custom configuration files for Cortex
+/*/cortex/config/index.conf
 /*/cortex/config/secret.conf
 
 # Keep track of .gitkeep files to guarantee folder permissions are correct
