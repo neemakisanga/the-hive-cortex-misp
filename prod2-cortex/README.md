@@ -28,7 +28,7 @@ docker compose version
 
 ## Content of the application stack
 
-This *testing* Docker Compose file deploys the following components:
+This *production* Docker Compose file deploys the following components:
 
 * Elasticsearch: Serves as the database for Cortex
 * Cortex: Analyzers and Responders engine
@@ -36,7 +36,7 @@ This *testing* Docker Compose file deploys the following components:
 
 ### Configuration and data files
 
-Each container has as dedicated folder for configuration, data and log files. 
+Each container has as dedicated folder for configuration, data and log files.
 
 ```bash
 .
@@ -64,7 +64,7 @@ elasticsearch
 * **./elasticsearch/logs**: the log files
 
 > [!NOTE]
-> These folders should not be manually modified 
+> These folders should not be manually modified
 
 #### Cortex
 
@@ -72,6 +72,7 @@ elasticsearch
 cortex
 ├── config
 │   ├── application.conf
+│   ├── index.conf.template
 │   ├── logback.xml
 │   └── secret.conf.template
 ├── cortex-jobs
@@ -79,7 +80,7 @@ cortex
 └── neurons
 ```
 
-* **./cortex/config**: configuration files. `secret.conf` is generated automatically when using our init script.
+* **./cortex/config**: configuration files. `index.conf` and `secret.conf` are generated automatically when using our init script.
 * **./cortex/cortex-jobs**: temprary data storage for Analyzers and Responders
 * **./cortex/logs**: Cortex log files
 * **./cortex/neurons**: Folder dedicated to custom Analyzers and Responders
@@ -104,9 +105,9 @@ nginx
 
 #### Certificates
 
-This foler is empty. By default, the application stack is initialised with self-signed certificates. 
+This folder is empty. By default, the application stack is initialised with self-signed certificates.
 
-If you want to use your own certificates, like one signed by an internal authority, create following files - ensure to use the filenames written - : 
+If you want to use your own certificates, like one signed by an internal authority, create following files - ensure to use the filenames written - :
 
 ```bash
 certificates
@@ -139,18 +140,18 @@ The application stack includes several utility scripts:
 
 The application will run under the user account and group that executes the init script.
 
-Run the *init.sh* script: 
+Run the *init.sh* script:
 
 ```bash
 bash ./scripts/init.sh
 ```
 
-This script wil perform following actions: 
+This script wil perform following actions:
 
 * Prompts for a service name to include in the Nginx server certificate.
-* Initializes the `secret.conf` files for Cortex.
+* Initializes the `index.conf` and `secret.conf` files for Cortex.
 * Generates self-signed certificate none is found in `./certificates`
-* Creates a `.env` file will user/group information and other application settings
+* Creates a `.env` file with user/group information and other application settings
 * Verifies file and folder permissions.
 
 
@@ -160,7 +161,7 @@ This script wil perform following actions:
 docker compose up
 ```
 
-or 
+or
 
 ```bash
 docker compose up -d
@@ -168,28 +169,28 @@ docker compose up -d
 
 ## Access to the applications
 
-Open your browser, and navigate to: 
+Open your browser, and navigate to:
 
 * `https://HOSTNAME_OR_IP` to connect to Cortex
 
 
 ## Additional content
 
-Multiple scripts are also provided to help managing and testing the applications: 
+Multiple scripts are also provided to help managing and testing the applications:
 
 ### Reset your environment
 
-Run the following script to delete all data in the *testing* environment: 
+Run the following script to delete all data in the *production* environment:
 
 ```bash
 bash ./scripts/reset.sh
 ```
 
 > [!CAUTION]
-> This scripts deletes all data and containers. 
+> This scripts deletes all data and containers.
 
-Run the *init.sh* script to reload a new *production* instance. 
- 
+Run the *init.sh* script to reload a new *production* instance.
+
 
 ### Backup / Restore
 
