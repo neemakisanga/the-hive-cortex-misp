@@ -1,5 +1,5 @@
 search {
   index = cortex
-  username = "elastic"
+  user = "elastic"
   password = "###CHANGEME_ELASTICSEARCH_PASSWORD###"
 }
