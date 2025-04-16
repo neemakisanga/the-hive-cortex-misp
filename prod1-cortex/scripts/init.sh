@@ -23,13 +23,11 @@ init() {
     ## INIT CORTEX CONFIGURATION
     CORTEXINDEXFILE="./cortex/config/index.conf"
     CORTEXINDEXFILETEMPLATE="./cortex/config/index.conf.template"
-    if [ ! -f ${CORTEXINDEXFILE} ]
+    if [ -f ${CORTEXINDEXFILE} ]
     then
-        sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < $CORTEXINDEXFILETEMPLATE > $CORTEXINDEXFILE
-    else
-        STATUS=1
-        warning "${CORTEXINDEXFILE} file already exists and has not been modified."
+        rm -f ${CORTEXINDEXFILE}
     fi
+    sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < $CORTEXINDEXFILETEMPLATE > $CORTEXINDEXFILE
 
     CORTEXSECRETFILE="./cortex/config/secret.conf"
     if [ ! -f ${CORTEXSECRETFILE} ]
@@ -44,17 +42,19 @@ _EOF_
 
     ## CREATE .env FILE
     ENVFILE="./.env"
-    if [ ! -f ${ENVFILE} ]
+    if [ -f ${ENVFILE} ]
     then
-        CURRENT_USER_ID=$(id -u)
-        CURRENT_GROUP_ID=$(id -g)
-        sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < ./dot.env.template > $ENVFILE
-        cat ../versions.env >> .env
-        # Ask user for service hostname
-        define_hostname
-        check_user_certificates ${SYSTEM_HOSTNAME}
-        # bash $(dirname $0)/generate_certs.sh ${SYSTEM_HOSTNAME} # Generate Nginx self-signed certificates if no certificate is installed.
-        cat >> ${ENVFILE} << _EOF_
+        rm -f ${ENVFILE}
+    fi
+    CURRENT_USER_ID=$(id -u)
+    CURRENT_GROUP_ID=$(id -g)
+    sed -e "s/###CHANGEME_ELASTICSEARCH_PASSWORD###/$ELASTICSEARCH_PASSWORD/g" < ./dot.env.template > $ENVFILE
+    cat ../versions.env >> .env
+    # Ask user for service hostname
+    define_hostname
+    check_user_certificates ${SYSTEM_HOSTNAME}
+    # bash $(dirname $0)/generate_certs.sh ${SYSTEM_HOSTNAME} # Generate Nginx self-signed certificates if no certificate is installed.
+    cat >> ${ENVFILE} << _EOF_
 ## CONFIGURATION AUTOMATICALLY ADDED BY .scripts/init.sh PROGRAM.
 # System variables
 UID=${CURRENT_USER_ID}
@@ -64,12 +64,6 @@ GID=${CURRENT_GROUP_ID}
 nginx_server_name="${SERVICE_HOSTNAME}"
 nginx_ssl_trusted_certificate="${NGINX_SSL_TRUSTED_CERTIFICATE_CONFIG}"
 _EOF_
-
-    else
-        STATUS=1
-        warning "${ENVFILE} file already exists and has not been modified."
-        exit 0
-    fi
 
     if [ ${STATUS} == 0 ]
     then
