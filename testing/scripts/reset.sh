@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-## This program remove all data and delete all files created by init.sh script. Once executed successfully, the folder is clean with no data. 
+## This program remove all data and delete all files created by init.sh script. Once executed successfully, the folder is clean with no data.
 
 source $(dirname $0)/output.sh  # used to display output
 
@@ -22,10 +22,12 @@ then
   done
   success "All data removed."
 
-  ## DELETE secret.conf FILES
+  ## DELETE index.conf and secret.conf FILES
+  rm ./thehive/config/index.conf
   rm ./thehive/config/secret.conf
+  rm ./cortex/config/index.conf
   rm ./cortex/config/secret.conf
-  success "secret files deleted."
+  success "index and secret files deleted."
 
   ## DELETE cert files
   rm -rf ./nginx/certs/*
@@ -46,7 +48,7 @@ then
       sudo chown ${CURRENT_USER_ID}:${CURRENT_GROUP_ID} "${line}"
       success "Ownership updated for ${line}"
       done
-    
+
     [[ $? -ne 0 ]] && info "Run this command with root privileges to complete the reset process:\n
     # find . ! -user ${CURRENT_USER_ID} -o ! -group ${CURRENT_GROUP_ID} -exec chown ${CURRENT_USER_ID}:${CURRENT_GROUP_ID} {} \; "
   fi

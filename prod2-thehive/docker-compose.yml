@@ -54,7 +54,8 @@ services:
       - thread_pool.search.queue_size=100000
       - thread_pool.write.queue_size=100000
       - bootstrap.memory_lock=true
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${elasticsearch_password} # Password for "elastic" default user
       - ES_JAVA_OPTS=-Xms8G -Xmx8G
     volumes:
       - ./elasticsearch/data:/usr/share/elasticsearch/data
@@ -72,7 +73,7 @@ services:
     networks:
       - thehive-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -f elasticsearch:9200/_cat/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f -s -u 'elastic:${elasticsearch_password}' http://elasticsearch:9200/_cat/health || exit 1"]
       start_period: 40s
       interval: 2s
       timeout: 1s
@@ -100,7 +101,7 @@ services:
           -XX:MaxMetaspaceSize=400m
           -XX:ReservedCodeCacheSize=400m
     volumes:
-      - ./thehive/config:/etc/thehive
+      - ./thehive/config:/etc/thehive:ro
       - ./thehive/data/files:/opt/thp/thehive/files
       - ./thehive/logs:/var/log/thehive
     deploy:
