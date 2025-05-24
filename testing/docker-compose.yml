@@ -4,7 +4,7 @@ services:
     container_name: cassandra
     hostname: cassandra
     restart: unless-stopped
-    user: ${UID}:${GID}
+   # user: ${UID}:${GID}
     environment:
       - CASSANDRA_CLUSTER_NAME=TheHive
       - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
@@ -17,9 +17,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 1G
     # Prevent swap https://docs.docker.com/engine/containers/resource_constraints/#prevent-a-container-from-using-swap
-    memswap_limit: 2G
+    memswap_limit: 1G
     networks:
       - thehive-cortex-network
     healthcheck:
@@ -42,7 +42,8 @@ services:
     container_name: elasticsearch
     hostname: elasticsearch
     restart: unless-stopped
-    user: ${UID}:0
+    user: "0:0"
+  # user: ${UID}:0
     environment:
       - http.host=0.0.0.0
       - discovery.type=single-node
@@ -53,9 +54,10 @@ services:
       - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${elasticsearch_password} # Password for "elastic" default user
       - ES_JAVA_OPTS=-Xms1G -Xmx1G
+
     volumes:
-      - ./elasticsearch/data:/usr/share/elasticsearch/data
-      - ./elasticsearch/logs:/usr/share/elasticsearch/logs
+      - es_data:/usr/share/elasticsearch/data
+      - es_logs:/usr/share/elasticsearch/logs
     ulimits:
       nofile:
         soft: 65536
@@ -63,16 +65,16 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
-    memswap_limit: 2G
+          memory: 1.5G
+    memswap_limit: 1.5G
     networks:
       - thehive-cortex-network
     healthcheck:
       test: ["CMD-SHELL", "curl -f -s -u 'elastic:${elasticsearch_password}' http://elasticsearch:9200/_cat/health || exit 1"]
-      start_period: 40s
-      interval: 2s
-      timeout: 1s
-      retries: 5
+      start_period: 90s
+      interval: 5s
+      timeout: 3s
+      retries: 30
     labels:
       com.strangebee.stack: "thehive-cortex-stack"
       com.strangebee.service: "elasticsearch"
@@ -87,7 +89,7 @@ services:
     hostname: thehive
     restart: unless-stopped
     command: '--no-config --no-config-secret'
-    user: ${UID}:${GID}
+    #user: ${UID}:${GID}
     environment:
       - |
         JAVA_OPTS=
@@ -102,8 +104,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
-    memswap_limit: 2G
+          memory: 1G
+    memswap_limit: 1G
     networks:
       - thehive-cortex-network
     ports:
@@ -153,8 +155,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
-    memswap_limit: 2G
+          memory: 1G
+    memswap_limit: 1G
     networks:
       - thehive-cortex-network
     ports:
@@ -194,8 +196,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
-          cpus: '1.000'
+          memory: 256M
+          cpus: '0.5'
     depends_on:
       - thehive
       - cortex
@@ -207,6 +209,53 @@ services:
       com.strangebee.version: "${nginx_image_version}"
       com.strangebee.dependency: "thehive, cortex"
 
+  misp_mysql:
+    image: mysql/mysql-server:5.7
+    container_name: misp_mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=mispdb
+      - MYSQL_USER=mispuser
+      - MYSQL_PASSWORD=misppass
+      - MYSQL_ROOT_PASSWORD=misrootpass
+    networks:
+      - thehive-cortex-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    memswap_limit: 512M
+
+  misp:
+    image: coolacid/misp-docker:core-latest
+    container_name: misp
+    restart: unless-stopped
+    depends_on:
+      - misp_mysql
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - MYSQL_HOST=misp_mysql
+      - MYSQL_DATABASE=mispdb
+      - MYSQL_USER=mispuser
+      - MYSQL_PASSWORD=misppass
+      - MISP_ADMIN_EMAIL=admin@admin.test
+      - MISP_ADMIN_PASSPHRASE=admin
+      - MISP_BASEURL=https://46.101.251.26
+      - CRON_USER_ID=33
+    networks:
+      - thehive-cortex-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    memswap_limit: 1G
+
 
 networks:
   thehive-cortex-network:
+
+volumes:
+  es_data:
+  es_logs:
