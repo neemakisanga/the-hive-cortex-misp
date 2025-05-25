@@ -2,7 +2,7 @@
 
 source $(dirname $0)/output.sh
 
-THEHIVE_URL="https://127.0.0.1/thehive"
+THEHIVE_URL="https://142.93.109.64/thehive"
 
 set -e
 LOG_FILE=$(mktemp)

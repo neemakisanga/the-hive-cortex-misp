@@ -2,7 +2,7 @@
 
 source $(dirname $0)/output.sh
 
-CORTEX_URL="https://127.0.0.1/cortex"
+CORTEX_URL="https://142.93.109.64/cortex"
 
 set -e
 LOG_FILE=$(mktemp)

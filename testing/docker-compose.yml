@@ -242,7 +242,7 @@ services:
       - MYSQL_PASSWORD=misppass
       - MISP_ADMIN_EMAIL=admin@admin.test
       - MISP_ADMIN_PASSPHRASE=admin
-      - MISP_BASEURL=https://46.101.251.26
+      - MISP_BASEURL=https://142.93.109.64
       - CRON_USER_ID=33
     networks:
       - thehive-cortex-network
