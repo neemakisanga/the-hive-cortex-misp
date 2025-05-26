@@ -104,8 +104,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
-    memswap_limit: 1G
+          memory: 2G
+    memswap_limit: 2G
     networks:
       - thehive-cortex-network
     ports:
