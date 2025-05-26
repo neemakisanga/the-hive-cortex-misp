@@ -88,7 +88,7 @@ services:
     container_name: thehive
     hostname: thehive
     restart: unless-stopped
-    command: '--no-config --no-config-secret'
+    #command: '--no-config --no-config-secret'
     #user: ${UID}:${GID}
     environment:
       - |
