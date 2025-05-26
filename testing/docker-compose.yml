@@ -97,6 +97,7 @@ services:
           -Xmx1280M
           -XX:MaxMetaspaceSize=400m
           -XX:ReservedCodeCacheSize=250m
+        THEHIVE_CONFIG_FILE: "/etc/thehive/application.conf"
     volumes:
       - ./thehive/config:/etc/thehive:ro
       - ./thehive/data/files:/opt/thp/thehive/files
