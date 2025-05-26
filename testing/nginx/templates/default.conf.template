@@ -1,3 +1,6 @@
+upstream thehive {
+    server thehive:9000;
+}
 
 server {
     listen 443 ssl;
